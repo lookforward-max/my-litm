@@ -1,0 +1,69 @@
+void student_xinxi() {
+    STU stu1, stu2;   //stu1存储用户输入的信息，stu2用于比对匹配 
+    printf("姓名:\n");
+    scanf("%s", stu1.name );
+    printf("学号:\n");
+    scanf("%d", &stu1.uid  );
+
+    FILE *fp;
+    fp = fopen("考生信息表.txt", "r+");    //打开文件，进行读写操作 
+    if (fp == NULL) {                     // 尝试创建文件
+        fp = fopen("考生信息表.txt", "w");
+        if (fp == NULL) {
+            printf("创建文件失败，无法进行录入操作！\n");
+            return ;
+        }                             
+        fwrite(&stu1, sizeof(STU), 1, fp);   // 创建文件，开始录入操作 
+        printf("考生信息已成功录入！\n");
+        fclose(fp);
+    } else {
+        fseek(fp, 0, SEEK_END);            // 将文件指针移动到文件末尾，获取文件大小
+        long int file_size = ftell(fp);    //通过file_size的值是否为0判断是否为空文件 
+        fseek(fp, 0, SEEK_SET);
+
+        if (file_size == 0) {                //文件为空写入数据 
+            fclose(fp);
+            fp = fopen("考生信息表.txt", "w");
+            if (fp == NULL) {
+                printf("重新打开文件失败(录入模式)\n");
+                return ;
+            }
+            fwrite(&stu1, sizeof(STU), 1, fp);
+            printf("考生信息已成功录入！\n");
+            fclose(fp);
+        } else {
+            int found = 0;    //通过found值是否为0，匹配数据 
+            while (fread(&stu2, sizeof(STU), 1, fp) == 1) {
+                if (strcmp(stu1.name, stu2.name ) == 0 && strcmp(stu1.uid ,stu2.uid ) == 0) {
+                    found = 1;
+                    break;
+                }
+            }
+            fclose(fp);
+            if (found == 1) {
+                printf("匹配成功！\n");
+                printf("是否开始考试！\n");
+                printf("YES(1) or NO(2)\n"); 
+				int YES;    //通过YES的值来判断是否开始考试 
+				scanf("%d",&YES);
+				if(YES == 1){
+					kaoshi();
+				} else {
+					printf("你已退出考试系统！\n"); 
+					UI();      //重新进入开始页面
+				} 
+            } else {
+                printf("匹配失败！是否重新输入\n");
+                printf("T(1) or F(2)\n");
+				int TF;   //通过s来判断是否要重新输入
+				scanf("%d",&TF); 
+                if(TF == 1){
+                	student_xinxi();
+				} else {
+					printf("你已退出登录系统！\n");
+					UI();     //重新进入开始页面 
+				}
+            }
+        }
+    }
+}

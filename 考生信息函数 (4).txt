@@ -1,0 +1,102 @@
+void alter () {
+FILE *fp = fopen("试卷.txt", "r+");
+    if (fp == NULL) {
+        perror("无法打开试卷文件");
+        return;
+    }
+
+    char line[1024];
+    int question_number = 1;
+    int target_question;      // 定义要修改的题目序号 
+    printf("请输入要修改的题目序号：");
+    scanf("%d", &target_question);
+    while (getchar()!= '\n');
+
+    // 定位到目标题目
+    int current_question = 1;
+    while (fgets(line, sizeof(line), fp)) {
+        if (current_question == target_question) {
+            TIT ques;        // 临时存储读取内容 
+            line[strcspn(line, "\n")] = '\0';
+            strcpy(ques.topic, line);
+
+            fgets(line, sizeof(line), fp);
+            line[strcspn(line, "\n")] = '\0';
+            strcpy(ques.a, line);
+
+            fgets(line, sizeof(line), fp);
+            line[strcspn(line, "\n")] = '\0';
+            strcpy(ques.b, line);
+
+            fgets(line, sizeof(line), fp);
+            line[strcspn(line, "\n")] = '\0';
+            strcpy(ques.c, line);
+
+            fgets(line, sizeof(line), fp);
+            line[strcspn(line, "\n")] = '\0';
+            strcpy(ques.d, line);
+
+            fgets(line, sizeof(line), fp);
+            line[strcspn(line, "\n")] = '\0';
+            strcpy(ques.answer, line);
+
+            // 输出原题目内容
+            printf("原题目：\n");
+            printf("题目：%s\n", ques.topic);
+            printf("A. %s\n", ques.a);
+            printf("B. %s\n", ques.b);
+            printf("C. %s\n", ques.c);
+            printf("D. %s\n", ques.d);
+            printf("答案：%s\n\n", ques.answer);
+
+            // 获取新内容
+            printf("请输入新题目：\n");
+            fgets(ques.topic, sizeof(ques.topic), stdin);
+            ques.topic[strcspn(ques.topic, "\n")] = '\0';
+
+            printf("请输入 A 选项：\n");
+            fgets(ques.a, sizeof(ques.a), stdin);
+            ques.a[strcspn(ques.a, "\n")] = '\0';
+
+            printf("请输入 B 选项：\n");
+            fgets(ques.b, sizeof(ques.b), stdin);
+            ques.b[strcspn(ques.b, "\n")] = '\0';
+
+            printf("请输入 C 选项：\n");
+            fgets(ques.c, sizeof(ques.c), stdin);
+            ques.c[strcspn(ques.c, "\n")] = '\0';
+
+            printf("请输入 D 选项：\n");
+            fgets(ques.d, sizeof(ques.d), stdin);
+            ques.d[strcspn(ques.d, "\n")] = '\0';
+
+            printf("请输入正确答案：\n");
+            while (1) {
+                ques.answer[0] = getchar();
+                if (ques.answer[0] >= 'A' && ques.answer[0] <= 'D') {
+                    ques.answer[1] = '\0';
+                    getchar();  // 清除换行符
+                    break;
+                }
+                printf("请输入大写字母 A - D：");
+            }
+
+            // 将文件指针回退到当前题目的起始位置
+            // 计算需要回退的字节数，是题目、各选项、答案的长度总和再加6个换行符的长度
+            fseek(fp, - (strlen(ques.topic) + strlen(ques.a) + strlen(ques.b) + strlen(ques.c) + strlen(ques.d) + strlen(ques.answer) + 6), SEEK_CUR);
+            
+            // 将新的题目内容写入文件，覆盖原内容
+            fprintf(fp, "%s\n%s\n%s\n%s\n%s\n%s\n", ques.topic, ques.a, ques.b, ques.c, ques.d, ques.answer);
+            break;
+        }
+        // 计算当前题目已经读取的行数，用于定位下一题
+        int line_count = 0;
+        while (fgets(line, sizeof(line), fp) && line_count < 6) {
+            line_count++;
+        }
+        current_question++;
+    }
+
+    fclose(fp);
+    printf("题目修改成功！\n");
+} 

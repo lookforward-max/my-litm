@@ -1,0 +1,68 @@
+void kaoshi() {
+    FILE *fp_ques;
+    fp_ques = fopen("试卷.txt", "r");
+    if (fp_ques == NULL) {
+        perror("无法打开试卷文件");
+        return;
+    }
+
+    FILE *fp_score = fopen("成绩.txt", "a");
+    if (fp_score == NULL) {
+        perror("无法打开成绩文件");
+        fclose(fp_ques);
+        return;
+    }
+
+    char line[1024];      // 临时存储从试卷读取的内容 
+    int score = 0;        // 初始化成绩分数 
+    int question_count = 0;      //初始化题目数量 
+    while (fgets(line, sizeof(line), fp_ques)) {
+        TIT ques;         // 存储题目当前信息 
+        line[strcspn(line, "\n")] = '\0';
+        strcpy(ques.topic, line);
+
+        fgets(line, sizeof(line), fp_ques);
+        line[strcspn(line, "\n")] = '\0';
+        strcpy(ques.a, line);
+
+        fgets(line, sizeof(line), fp_ques);
+        line[strcspn(line, "\n")] = '\0';
+        strcpy(ques.b, line);
+
+        fgets(line, sizeof(line), fp_ques);
+        line[strcspn(line, "\n")] = '\0';
+        strcpy(ques.c, line);
+
+        fgets(line, sizeof(line), fp_ques);
+        line[strcspn(line, "\n")] = '\0';
+        strcpy(ques.d, line);
+
+        fgets(line, sizeof(line), fp_ques);
+        line[strcspn(line, "\n")] = '\0';
+        strcpy(ques.answer, line);
+
+        // 输出题目
+        printf("题目：%s\n", ques.topic);
+        printf("A. %s\n", ques.a);
+        printf("B. %s\n", ques.b);
+        printf("C. %s\n", ques.c);
+        printf("D. %s\n", ques.d);
+        
+        // 获取用户答案
+        char user_answer[2];       // 用于存储考生输入的答案 
+        printf("请输入你的答案：");
+        scanf("%s", user_answer);
+        while (getchar()!= '\n');
+
+        if (user_answer[0] == ques.answer[0]) {
+            score++;
+        }
+        question_count++;
+    }
+
+    double average = (double)score / question_count;
+    fprintf(fp_score, "总分：%d，平均分：%.2f\n", score, average);
+    fclose(fp_score);
+    fclose(fp_ques);
+    printf("考试结束，成绩已保存！\n");
+}
